@@ -1,0 +1,11 @@
+.transaction-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .radio-group {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+  }

@@ -1,0 +1,12 @@
+.search-field {
+    width: 100%;
+    margin-bottom: 16px;
+  }
+  
+  .transaction-table {
+    width: 100%;
+  }
+  
+  mat-chip {
+    margin: 4px;
+  }
