@@ -1,49 +1,45 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+export interface Transaction {
+  id?: number; // Opcional, pois o ID é gerado pelo backend
+  description: string;
+  amount: number;
+  type: 'income' | 'expense';
+  date: string; // Formato: YYYY-MM-DD
+}
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class TransactionService {
-  private readonly STORAGE_KEY = 'transactions';
-  private transactionsSubject = new BehaviorSubject<any[]>(this.getTransactions());
+  private apiUrl = 'https://apicontrolefinanceiro.jonz.com.br/transaction';
 
-  transactions$ = this.transactionsSubject.asObservable();
+  constructor(private http: HttpClient) {}
 
-  constructor() {}
-
-  saveTransactions(transactions: any[]): void {
-    localStorage.setItem(this.STORAGE_KEY, JSON.stringify(transactions));
-    this.transactionsSubject.next(transactions); // Notifica os componentes sobre a mudança
+  // Busca todas as transações
+  getTransactions(): Observable<Transaction[]> {
+    return this.http.get<Transaction[]>(this.apiUrl);
   }
 
-  getTransactions(): any[] {
-    const transactions = localStorage.getItem(this.STORAGE_KEY);
-    return transactions ? JSON.parse(transactions) : [];
+  // Busca uma transação por ID
+  getTransactionById(id: number): Observable<Transaction> {
+    return this.http.get<Transaction>(`${this.apiUrl}/${id}`);
   }
 
-  addTransaction(transaction: any): void {
-    const transactions = this.getTransactions();
-
-    // Verifica se a transação já existe (evita duplicação)
-    const existingTransaction = transactions.find(t => t.id === transaction.id);
-    if (!existingTransaction) {
-      transactions.push(transaction);
-      this.saveTransactions(transactions);
-    }
+  // Cria uma nova transação
+  createTransaction(transaction: Transaction): Observable<Transaction> {
+    return this.http.post<Transaction>(this.apiUrl, transaction);
   }
 
-  updateTransaction(updatedTransaction: any): void {
-    const transactions = this.getTransactions();
-    const index = transactions.findIndex(t => t.id === updatedTransaction.id);
-    if (index !== -1) {
-      transactions[index] = updatedTransaction;
-      this.saveTransactions(transactions);
-    }
+  // Atualiza uma transação existente
+  updateTransaction(id: number, transaction: Transaction): Observable<Transaction> {
+    return this.http.put<Transaction>(`${this.apiUrl}/${id}`, transaction);
   }
 
-  deleteTransaction(transactionId: string): void {
-    const transactions = this.getTransactions().filter(t => t.id !== transactionId);
-    this.saveTransactions(transactions);
+  // Exclui uma transação
+  deleteTransaction(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }

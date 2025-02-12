@@ -1,7 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { TransactionService } from './services/transaction.service';
 import { ChartData, ChartOptions } from 'chart.js';
-import { BaseChartDirective } from 'ng2-charts'; // Importe o BaseChartDirective
+import { BaseChartDirective } from 'ng2-charts';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
@@ -73,39 +73,58 @@ export class AppComponent implements OnInit {
 
   ngOnInit() {
     this.loadTransactions();
-
-    // Escuta as mudanças no serviço
-    this.transactionService.transactions$.subscribe(() => {
-      this.loadTransactions();
-    });
   }
 
   // Carrega as transações do serviço
   loadTransactions() {
-    this.transactions = this.transactionService.getTransactions();
-    this.updateChart(); // Atualiza o gráfico após carregar as transações
+    this.transactionService.getTransactions().subscribe(
+      (transactions) => {
+        this.transactions = transactions;
+        this.updateChart(); // Atualiza o gráfico após carregar as transações
+      },
+      (error) => {
+        console.error('Erro ao carregar transações:', error);
+      }
+    );
   }
 
   // Adiciona uma nova transação
   onAddTransaction(transaction: any) {
-    transaction.id = Date.now().toString(); // Adiciona um ID único
-    this.transactionService.addTransaction(transaction);
-    this.loadTransactions(); // Recarrega as transações
-    this.updateChart(); // Atualiza o gráfico
+    this.transactionService.createTransaction(transaction).subscribe(
+      (newTransaction) => {
+        console.log('Transação criada com sucesso:', newTransaction);
+        this.loadTransactions(); // Recarrega as transações
+      },
+      (error) => {
+        console.error('Erro ao criar transação:', error);
+      }
+    );
   }
 
   // Edita uma transação existente
   onEditTransaction(updatedTransaction: any) {
-    this.transactionService.updateTransaction(updatedTransaction);
-    this.loadTransactions(); // Recarrega as transações
-    this.updateChart(); // Atualiza o gráfico
+    this.transactionService.updateTransaction(updatedTransaction.id, updatedTransaction).subscribe(
+      (updated) => {
+        console.log('Transação atualizada com sucesso:', updated);
+        this.loadTransactions(); // Recarrega as transações
+      },
+      (error) => {
+        console.error('Erro ao atualizar transação:', error);
+      }
+    );
   }
 
   // Exclui uma transação
-  onDeleteTransaction(transactionId: string) {
-    this.transactionService.deleteTransaction(transactionId);
-    this.loadTransactions(); // Recarrega as transações
-    this.updateChart(); // Atualiza o gráfico
+  onDeleteTransaction(transactionId: number) {
+    this.transactionService.deleteTransaction(transactionId).subscribe(
+      () => {
+        console.log('Transação excluída com sucesso');
+        this.loadTransactions(); // Recarrega as transações
+      },
+      (error) => {
+        console.error('Erro ao excluir transação:', error);
+      }
+    );
   }
 
   // Atualiza os dados do gráfico

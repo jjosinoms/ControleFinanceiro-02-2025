@@ -38,7 +38,7 @@ export class TransactionFormComponent implements OnChanges {
       transaction.id = this.transaction?.id || Date.now().toString();
 
       // Salva a transação usando o serviço
-      this.transactionService.addTransaction(transaction);
+      this.transactionService.createTransaction(transaction);
 
       // Reseta o formulário
       this.transactionForm.reset({

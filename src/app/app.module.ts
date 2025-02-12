@@ -20,6 +20,7 @@ import { AppComponent } from './app.component';
 import { TransactionFormComponent } from './transaction-form/transaction-form.component';
 import { ConfirmDialogComponent } from './confirm-dialog/confirm-dialog.component';
 import { TransactionListComponent } from './transaction-list/transaction-list.component';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -46,6 +47,8 @@ import { TransactionListComponent } from './transaction-list/transaction-list.co
     MatToolbarModule,
     MatChipsModule,
     NgChartsModule,
+    HttpClientModule, // Adicione o HttpClientModule aqui
+
     
     ConfirmDialogComponent,
     TransactionListComponent
