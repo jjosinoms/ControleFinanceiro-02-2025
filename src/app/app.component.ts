@@ -159,7 +159,7 @@ export class AppComponent implements OnInit {
     // Dados da tabela
     const data = this.transactions.map((t) => [
       t.description,
-      t.amount.toFixed(2),
+      Number(t.amount).toFixed(2),
       t.type === 'income' ? 'Receita' : 'Despesa',
       new Date(t.date).toLocaleDateString('pt-BR'),
     ]);
@@ -194,7 +194,7 @@ export class AppComponent implements OnInit {
     // Dados da planilha
     const data = this.transactions.map((t) => [
       t.description,
-      t.amount.toFixed(2),
+      Number(t.amount).toFixed(2),
       t.type === 'income' ? 'Receita' : 'Despesa',
       new Date(t.date).toLocaleDateString('pt-BR'),
     ]);
