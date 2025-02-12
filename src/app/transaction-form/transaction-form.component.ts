@@ -47,7 +47,7 @@ export class TransactionFormComponent implements OnChanges {
           });
         },
         (error) => {
-          console.error('Erro ao criar transação:', error);
+          console.error('Erro ao criar transação :', error);
         }
       );
     }
