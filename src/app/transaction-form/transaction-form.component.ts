@@ -31,20 +31,25 @@ export class TransactionFormComponent implements OnChanges {
       this.transactionForm.patchValue(this.transaction);
     }
   }
-
   onSubmit() {
     if (this.transactionForm.valid) {
       const transaction = this.transactionForm.value;
-      transaction.id = this.transaction?.id || Date.now().toString();
-
-      // Salva a transação usando o serviço
-      this.transactionService.createTransaction(transaction);
-
-      // Reseta o formulário
-      this.transactionForm.reset({
-        type: 'income',
-        date: new Date().toISOString().substring(0, 10)
-      });
+  
+      // Remove a geração manual do ID
+      delete transaction.id;
+  
+      this.transactionService.createTransaction(transaction).subscribe(
+        (newTransaction) => {
+          console.log('Transação criada com sucesso:', newTransaction);
+          this.transactionForm.reset({
+            type: 'income',
+            date: new Date().toISOString().substring(0, 10)
+          });
+        },
+        (error) => {
+          console.error('Erro ao criar transação:', error);
+        }
+      );
     }
   }
 }

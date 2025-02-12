@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { TransactionService } from './services/transaction.service';
+import { TransactionService, Transaction } from './services/transaction.service'; // Importe a interface
 import { ChartData, ChartOptions } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
 import { jsPDF } from 'jspdf';
@@ -10,61 +10,61 @@ import * as XLSX from 'xlsx';
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css'],
-  standalone: false,
+  standalone: false
 })
 export class AppComponent implements OnInit {
-  @ViewChild(BaseChartDirective) chart: BaseChartDirective | undefined; // Acessa a instância do gráfico
+  @ViewChild(BaseChartDirective) chart: BaseChartDirective | undefined;
 
-  transactions: any[] = [];
+  transactions: Transaction[] = []; // Use a interface Transaction
 
   // Dados do gráfico
   chartData: ChartData<'bar'> = {
-    labels: [], // Rótulos (datas ou categorias)
+    labels: [],
     datasets: [
       {
         label: 'Receitas',
-        data: [], // Valores das receitas
-        backgroundColor: 'rgba(75, 192, 192, 0.2)', // Cor de fundo
-        borderColor: 'rgba(75, 192, 192, 1)', // Cor da borda
-        borderWidth: 1, // Largura da borda
+        data: [],
+        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+        borderColor: 'rgba(75, 192, 192, 1)',
+        borderWidth: 1,
       },
       {
         label: 'Despesas',
-        data: [], // Valores das despesas
-        backgroundColor: 'rgba(255, 99, 132, 0.2)', // Cor de fundo
-        borderColor: 'rgba(255, 99, 132, 1)', // Cor da borda
-        borderWidth: 1, // Largura da borda
+        data: [],
+        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+        borderColor: 'rgba(255, 99, 132, 1)',
+        borderWidth: 1,
       },
     ],
   };
 
   // Opções do gráfico
   chartOptions: ChartOptions<'bar'> = {
-    responsive: true, // Gráfico responsivo
+    responsive: true,
     scales: {
       x: {
         display: true,
         title: {
           display: true,
-          text: 'Data', // Título do eixo X
+          text: 'Transação',
         },
       },
       y: {
         display: true,
         title: {
           display: true,
-          text: 'Valor (R$)', // Título do eixo Y
+          text: 'Valor (R$)',
         },
-        beginAtZero: true, // Começar o eixo Y do zero
+        beginAtZero: true,
       },
     },
     plugins: {
       legend: {
-        display: true, // Exibir a legenda
-        position: 'top', // Posição da legenda
+        display: true,
+        position: 'top',
       },
       tooltip: {
-        enabled: true, // Habilitar tooltips
+        enabled: true,
       },
     },
   };
@@ -80,7 +80,7 @@ export class AppComponent implements OnInit {
     this.transactionService.getTransactions().subscribe(
       (transactions) => {
         this.transactions = transactions;
-        this.updateChart(); // Atualiza o gráfico após carregar as transações
+        this.updateChart();
       },
       (error) => {
         console.error('Erro ao carregar transações:', error);
@@ -89,11 +89,11 @@ export class AppComponent implements OnInit {
   }
 
   // Adiciona uma nova transação
-  onAddTransaction(transaction: any) {
+  onAddTransaction(transaction: Transaction) {
     this.transactionService.createTransaction(transaction).subscribe(
       (newTransaction) => {
         console.log('Transação criada com sucesso:', newTransaction);
-        this.loadTransactions(); // Recarrega as transações
+        this.loadTransactions(); // Recarrega as transações após adicionar
       },
       (error) => {
         console.error('Erro ao criar transação:', error);
@@ -102,11 +102,16 @@ export class AppComponent implements OnInit {
   }
 
   // Edita uma transação existente
-  onEditTransaction(updatedTransaction: any) {
+  onEditTransaction(updatedTransaction: Transaction) {
+    if (updatedTransaction.id === undefined) {
+      console.error('ID da transação não definido');
+      return;
+    }
+
     this.transactionService.updateTransaction(updatedTransaction.id, updatedTransaction).subscribe(
       (updated) => {
         console.log('Transação atualizada com sucesso:', updated);
-        this.loadTransactions(); // Recarrega as transações
+        this.loadTransactions(); // Recarrega as transações após editar
       },
       (error) => {
         console.error('Erro ao atualizar transação:', error);
@@ -119,7 +124,7 @@ export class AppComponent implements OnInit {
     this.transactionService.deleteTransaction(transactionId).subscribe(
       () => {
         console.log('Transação excluída com sucesso');
-        this.loadTransactions(); // Recarrega as transações
+        this.loadTransactions(); // Recarrega as transações após excluir
       },
       (error) => {
         console.error('Erro ao excluir transação:', error);
@@ -136,9 +141,10 @@ export class AppComponent implements OnInit {
       .filter((t) => t.type === 'expense')
       .map((t) => t.amount);
 
+    // Atualiza os rótulos do gráfico para usar os nomes das transações
+    this.chartData.labels = this.transactions.map((t) => t.description);
+
     // Atualiza os dados do gráfico
-    this.chartData.labels = this.transactions.map((t) =>
-      new Date(t.date).toLocaleDateString('pt-BR') );
     this.chartData.datasets[0].data = incomeData;
     this.chartData.datasets[1].data = expenseData;
 
@@ -158,19 +164,22 @@ export class AppComponent implements OnInit {
     const headers = [['Descrição', 'Valor (R$)', 'Tipo', 'Data']];
 
     // Dados da tabela
-    const data = this.transactions.map((t) => [
-      t.description,
-      Number(t.amount).toFixed(2),
-      t.type === 'income' ? 'Receita' : 'Despesa',
-      new Date(t.date).toLocaleDateString('pt-BR'),
-    ]);
+    const data = this.transactions.map((t) => {
+      const amount = typeof t.amount === 'number' ? t.amount : parseFloat(t.amount);
+      return [
+        t.description,
+        amount.toFixed(2),
+        t.type === 'income' ? 'Receita' : 'Despesa',
+        new Date(t.date).toLocaleDateString('pt-BR'),
+      ];
+    });
 
     // Adiciona a tabela ao PDF
     (doc as any).autoTable({
       head: headers,
       body: data,
       startY: 30,
-      theme: 'striped', // Estilo da tabela
+      theme: 'striped',
       styles: {
         fontSize: 10,
         cellPadding: 2,
@@ -178,8 +187,8 @@ export class AppComponent implements OnInit {
         halign: 'center',
       },
       headStyles: {
-        fillColor: [41, 128, 185], // Cor do cabeçalho
-        textColor: [255, 255, 255], // Cor do texto do cabeçalho
+        fillColor: [41, 128, 185],
+        textColor: [255, 255, 255],
       },
     });
 
@@ -193,12 +202,15 @@ export class AppComponent implements OnInit {
     const headers = ['Descrição', 'Valor (R$)', 'Tipo', 'Data'];
 
     // Dados da planilha
-    const data = this.transactions.map((t) => [
-      t.description,
-      Number(t.amount).toFixed(2),
-      t.type === 'income' ? 'Receita' : 'Despesa',
-      new Date(t.date).toLocaleDateString('pt-BR'),
-    ]);
+    const data = this.transactions.map((t) => {
+      const amount = typeof t.amount === 'number' ? t.amount : parseFloat(t.amount);
+      return [
+        t.description,
+        amount.toFixed(2),
+        t.type === 'income' ? 'Receita' : 'Despesa',
+        new Date(t.date).toLocaleDateString('pt-BR'),
+      ];
+    });
 
     // Cria uma planilha
     const worksheet = XLSX.utils.aoa_to_sheet([headers, ...data]);
