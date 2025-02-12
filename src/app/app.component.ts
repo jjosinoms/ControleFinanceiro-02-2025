@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { TransactionService } from './services/transaction.service';
 import { ChartData, ChartOptions } from 'chart.js';
+import { BaseChartDirective } from 'ng2-charts'; // Importe o BaseChartDirective
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
@@ -12,6 +13,8 @@ import * as XLSX from 'xlsx';
   standalone: false,
 })
 export class AppComponent implements OnInit {
+  @ViewChild(BaseChartDirective) chart: BaseChartDirective | undefined; // Acessa a instância do gráfico
+
   transactions: any[] = [];
 
   // Dados do gráfico
@@ -66,17 +69,15 @@ export class AppComponent implements OnInit {
     },
   };
 
-  constructor(private transactionService: TransactionService) { }
+  constructor(private transactionService: TransactionService) {}
 
   ngOnInit() {
     this.loadTransactions();
 
     // Escuta as mudanças no serviço
-    this.transactionService.transactions$.subscribe(transactions => {
-      this.transactions = transactions;
+    this.transactionService.transactions$.subscribe(() => {
+      this.loadTransactions();
     });
-
-    this.updateChart();
   }
 
   // Carrega as transações do serviço
@@ -109,8 +110,12 @@ export class AppComponent implements OnInit {
 
   // Atualiza os dados do gráfico
   updateChart() {
-    const incomeData = this.transactions.filter((t) => t.type === 'income').map((t) => t.amount);
-    const expenseData = this.transactions.filter((t) => t.type === 'expense').map((t) => t.amount);
+    const incomeData = this.transactions
+      .filter((t) => t.type === 'income')
+      .map((t) => t.amount);
+    const expenseData = this.transactions
+      .filter((t) => t.type === 'expense')
+      .map((t) => t.amount);
 
     // Atualiza os dados do gráfico
     this.chartData.labels = this.transactions.map((t) => t.date);
@@ -118,7 +123,7 @@ export class AppComponent implements OnInit {
     this.chartData.datasets[1].data = expenseData;
 
     // Força a atualização do gráfico
-    this.chartData = { ...this.chartData };
+    this.chart?.update();
   }
 
   // Exporta as transações para PDF
