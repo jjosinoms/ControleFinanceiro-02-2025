@@ -137,7 +137,8 @@ export class AppComponent implements OnInit {
       .map((t) => t.amount);
 
     // Atualiza os dados do gráfico
-    this.chartData.labels = this.transactions.map((t) => t.date);
+    this.chartData.labels = this.transactions.map((t) =>
+      new Date(t.date).toLocaleDateString('pt-BR') );
     this.chartData.datasets[0].data = incomeData;
     this.chartData.datasets[1].data = expenseData;
 
