@@ -1,6 +1,6 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { TransactionService } from '../services/transaction.service'; // Importe o serviço
+import { Transaction } from '../services/transaction.service'; // Importe a interface Transaction
 
 @Component({
   selector: 'app-transaction-form',
@@ -9,13 +9,13 @@ import { TransactionService } from '../services/transaction.service'; // Importe
   standalone: false
 })
 export class TransactionFormComponent implements OnChanges {
-  @Input() transaction: any;
+  @Input() transaction: Transaction | null = null; // Use a interface Transaction
+  @Output() transactionSubmit = new EventEmitter<Transaction>(); // EventEmitter para emitir a transação
 
   transactionForm: FormGroup;
 
   constructor(
-    private fb: FormBuilder,
-    private transactionService: TransactionService // Injete o serviço
+    private fb: FormBuilder
   ) {
     this.transactionForm = this.fb.group({
       id: [null],
@@ -31,25 +31,19 @@ export class TransactionFormComponent implements OnChanges {
       this.transactionForm.patchValue(this.transaction);
     }
   }
+
   onSubmit() {
     if (this.transactionForm.valid) {
       const transaction = this.transactionForm.value;
-  
-      // Remove a geração manual do ID
-      delete transaction.id;
-  
-      this.transactionService.createTransaction(transaction).subscribe(
-        (newTransaction) => {
-          console.log('Transação criada com sucesso:', newTransaction);
-          this.transactionForm.reset({
-            type: 'income',
-            date: new Date().toISOString().substring(0, 10)
-          });
-        },
-        (error) => {
-          console.error('Erro ao criar transação :', error);
-        }
-      );
+
+      // Emite o objeto Transaction para o componente pai
+      this.transactionSubmit.emit(transaction);
+
+      // Reseta o formulário
+      this.transactionForm.reset({
+        type: 'income',
+        date: new Date().toISOString().substring(0, 10)
+      });
     }
   }
 }

@@ -17,8 +17,7 @@
   <div class="content">
     <div class="form-section">
       <!-- Escuta o evento saveTransaction e chama onAddTransaction -->
-      <app-transaction-form (saveTransaction)="onAddTransaction($event)"></app-transaction-form>
-    </div>
+      <app-transaction-form (transactionSubmit)="onAddTransaction($event)"></app-transaction-form>    </div>
 
     <div class="chart-section">
       <mat-card>
