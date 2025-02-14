@@ -44,7 +44,7 @@ get form(): any{
 
 onSubmit() : void{
   
-  this.HttpClient.get('https://apicontrolefinanceiro.jonz.com.br/admin')
+  this.HttpClient.get('https://api.jonz.com.br/admin')
   .subscribe(/*capturar retorno da api*/ {
     next: (data) => { //resposta de sucesso da API
       if(data){ 
