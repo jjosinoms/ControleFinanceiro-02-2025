@@ -5,6 +5,7 @@ import { BaseChartDirective } from 'ng2-charts';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 import * as XLSX from 'xlsx';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -16,6 +17,20 @@ export class AppComponent implements OnInit {
   @ViewChild(BaseChartDirective) chart: BaseChartDirective | undefined;
 
   transactions: Transaction[] = []; // Use a interface Transaction
+  //loginFeitoComSucesso = false;
+  loginFeitoComSucesso2 = localStorage.getItem("loginFeitoComSucesso"); 
+  tokenAdmin = localStorage.getItem("token-admin"); 
+
+  // Verifica se o login foi feito com sucesso
+  get loginFeitoComSucesso(): boolean {
+    return localStorage.getItem('loginFeitoComSucesso') === 'true';
+  }
+
+  logout(): void {
+    localStorage.removeItem('token-admin');
+    localStorage.removeItem('loginFeitoComSucesso');
+    window.location.reload(); // Recarrega a página para atualizar o estado
+  }
 
   // Dados do gráfico
   chartData: ChartData<'bar'> = {
@@ -69,9 +84,13 @@ export class AppComponent implements OnInit {
     },
   };
 
-  constructor(private transactionService: TransactionService) {}
+  constructor(private transactionService: TransactionService,private router: Router) {}
 
   ngOnInit() {
+    const token = localStorage.getItem('token-admin');
+    if (!token) {
+      this.router.navigate(['/login']); // Redireciona para o login se não houver token
+    }
     this.loadTransactions();
   }
 

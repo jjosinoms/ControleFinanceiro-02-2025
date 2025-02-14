@@ -21,12 +21,22 @@ import { TransactionFormComponent } from './transaction-form/transaction-form.co
 import { ConfirmDialogComponent } from './confirm-dialog/confirm-dialog.component';
 import { TransactionListComponent } from './transaction-list/transaction-list.component';
 import { HttpClientModule } from '@angular/common/http';
+import { RouterModule, Routes } from '@angular/router';
+import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
+import { LoginComponent } from './login/login.component';
+
+
+const routes: Routes = [
+  { path: 'dashboard', component: AppComponent },
+  { path: 'login', component: LoginComponent },
+  { path: '', redirectTo: '/login', pathMatch: 'full' } // Redireciona para o login por padrão
+];
 
 @NgModule({
   declarations: [
     AppComponent,
     TransactionFormComponent,
-
+    LoginComponent
     
   ],
   imports: [
@@ -53,7 +63,7 @@ import { HttpClientModule } from '@angular/common/http';
     ConfirmDialogComponent,
     TransactionListComponent
   ],
-  providers: [AppComponent],
+  providers: [AppComponent, provideAnimationsAsync()],
   bootstrap: [AppComponent]
 })
 export class AppModule {}

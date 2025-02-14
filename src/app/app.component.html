@@ -1,49 +1,69 @@
-<div class="container">
-  <!-- Cabeçalho -->
-  <mat-toolbar color="primary">
-    <span>Controle Financeiro</span>
-    <span class="spacer"></span>
-    <div class="export-buttons">
-      <button mat-raised-button color="primary" (click)="exportToPDF()">
-        <mat-icon>picture_as_pdf</mat-icon> Exportar para PDF
-      </button>
-      <button mat-raised-button color="accent" (click)="exportToCSV()">
-        <mat-icon>grid_on</mat-icon> Exportar para Excel
-      </button>
+<!-- Exibe o app-login apenas se o login não foi feito -->
+@if (!loginFeitoComSucesso) {
+  <app-login></app-login>
+}
+
+<!-- Exibe o conteúdo do dashboard se o login foi feito -->
+@if (loginFeitoComSucesso) {
+  <button mat-raised-button color="warn" (click)="logout()">
+    <mat-icon>logout</mat-icon> Sair
+  </button>
+  <div class="container">
+    <!-- Cabeçalho -->
+    <mat-toolbar color="primary">
+      <span>Controle Financeiro</span>
+      <span class="spacer"></span>
+      <div class="export-buttons">
+        <button mat-raised-button color="primary" (click)="exportToPDF()">
+          <mat-icon>picture_as_pdf</mat-icon> Exportar para PDF
+        </button>
+        <button mat-raised-button color="accent" (click)="exportToCSV()">
+          <mat-icon>grid_on</mat-icon> Exportar para Excel
+        </button>
+      </div>
+    </mat-toolbar>
+
+    <!-- Formulário e Gráfico -->
+    <div class="content">
+      <div class="form-section">
+        <!-- Escuta o evento saveTransaction e chama onAddTransaction -->
+        <app-transaction-form (transactionSubmit)="onAddTransaction($event)"></app-transaction-form>
+      </div>
+
+      <div class="chart-section">
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title>Gráfico de Transações</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="chart-container">
+              <canvas
+                baseChart
+                [type]="'bar'"
+                [data]="chartData"
+                [options]="chartOptions"
+              ></canvas>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
     </div>
-  </mat-toolbar>
 
-  <!-- Formulário e Gráfico -->
-  <div class="content">
-    <div class="form-section">
-      <!-- Escuta o evento saveTransaction e chama onAddTransaction -->
-      <app-transaction-form (transactionSubmit)="onAddTransaction($event)"></app-transaction-form>    </div>
-
-    <div class="chart-section">
-      <mat-card>
-        <mat-card-header>
-          <mat-card-title>Gráfico de Transações</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <div class="chart-container">
-            <canvas
-              baseChart
-              [type]="'bar'"
-              [data]="chartData"
-              [options]="chartOptions"
-            ></canvas>
-          </div>
-        </mat-card-content>
-      </mat-card>
+    <!-- Lista de Transações -->
+    <div class="list-section">
+      <app-transaction-list
+        [transactions]="transactions"
+        (editTransaction)="onEditTransaction($event)"
+        (deleteTransaction)="onDeleteTransaction($event)"
+      ></app-transaction-list>
     </div>
   </div>
+}
 
-  <!-- Lista de Transações -->
-  <div class="list-section">
-    <app-transaction-list
-      [transactions]="transactions"
-      (editTransaction)="onEditTransaction($event)"
-      (deleteTransaction)="onDeleteTransaction($event)"
-    ></app-transaction-list>
+<!-- Exibe uma mensagem se o login não foi feito -->
+@if (!loginFeitoComSucesso) {
+  <div>
+    <hr />
+    <h1 style="text-align: center">Você não tem acesso!</h1>
   </div>
-</div>
+}

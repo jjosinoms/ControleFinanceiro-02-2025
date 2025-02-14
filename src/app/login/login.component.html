@@ -1,0 +1,90 @@
+
+<div class="container h-100" style="background-color: #f0f2f5; display: flex; justify-content: center; align-items: center;">
+  <div class="row w-100">
+    <div class="col-md-8 col-lg-6 col-xl-5 mx-auto">
+      <!-- Card do Angular Material -->
+      <mat-card class="shadow-lg" style="border-radius: 1rem; overflow: hidden;">
+        <!-- Cabeçalho do Card -->
+        <mat-card-header class="text-center bg-primary text-white" style="padding: 2rem;">
+          <mat-card-title>
+            <h3 class="mb-0">Bem-vindo ao Gerenciador</h3>
+          </mat-card-title>
+        </mat-card-header>
+
+        <!-- Corpo do Card -->
+        <mat-card-content class="p-4 p-lg-5 text-black">
+          <form [formGroup]="formVerificarLogin" (ngSubmit)="onSubmit()">
+            <!-- Ícone e Título -->
+            <div class="text-center mb-4">
+              <mat-icon class="text-primary mb-3" style="font-size: 3rem; height: 3rem; width: 3rem;">account_circle</mat-icon>
+              <h5 class="fw-normal mb-3" style="letter-spacing: 1px;">Entrar na Conta</h5>
+            </div>
+
+            <!-- Campo de Email -->
+            <mat-form-field appearance="outline" class="w-100 mb-4">
+              <mat-label>Usuário</mat-label>
+              <input
+                matInput
+                type="text"
+                formControlName="email"
+                placeholder="Digite seu email"
+              />
+              <mat-icon matSuffix>email</mat-icon>
+              <mat-error *ngIf="form.email.touched && form.email.invalid">
+                <span *ngIf="form.email.errors.required">
+                  Por favor, informe o usuário.
+                </span>
+                <span *ngIf="form.email.errors.email">
+                  Por favor, informe um email válido.
+                </span>
+              </mat-error>
+            </mat-form-field>
+
+            <!-- Campo de Senha -->
+            <mat-form-field appearance="outline" class="w-100 mb-4">
+              <mat-label>Senha</mat-label>
+              <input
+                matInput
+                type="password"
+                formControlName="senha"
+                placeholder="Digite sua senha"
+              />
+              <mat-icon matSuffix>lock</mat-icon>
+              <mat-error *ngIf="form.senha.touched && form.senha.invalid">
+                <span *ngIf="form.senha.errors.required">
+                  Por favor, informe a senha.
+                </span>
+                <span *ngIf="form.senha.errors.minlength">
+                  Por favor, informe no mínimo 8 caracteres.
+                </span>
+                <span *ngIf="form.senha.errors.maxlength">
+                  Por favor, informe no máximo 150 caracteres.
+                </span>
+              </mat-error>
+            </mat-form-field>
+
+            <!-- Botão de Entrar -->
+            <div class="pt-1 mb-4">
+              <button
+                mat-raised-button
+                color="primary"
+                type="submit"
+                class="w-100"
+                [disabled]="!formVerificarLogin.valid"
+              >
+                <mat-icon>login</mat-icon> Entrar
+              </button>
+            </div>
+
+            <!-- Mensagem de Erro -->
+            <div *ngIf="mensagemErroLogin" class="text-center">
+              <mat-error>
+                <mat-icon>error</mat-icon> Email ou Senha Incorretos!
+              </mat-error>
+            </div>
+          </form>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>
